@@ -19,7 +19,7 @@ exist = False
 for i in glob.glob(jsonPath + '\\*'):
     print(i[len(jsonPath)+1:])
     if i[len(jsonPath)+1:] == jsonName:
-        exist = True
+        #exist = True
         break
 #print(exist)
 
@@ -31,8 +31,8 @@ if not exist:
     "min" : "60000",
     "num" : "1",
     "viewtime" : "30000",
-    "test" : [{"샘플사이트" : {"id" : "example", "pw" : "example"}}],
-    "view" : [{"샘플사이트" : {"id" : "example", "pw" : "example"}}],
+    "test" : {"샘플사이트" : {"id" : "example", "pw" : "example"}},
+    "view" : {"샘플사이트" : {"id" : "example", "pw" : "example"}},
     }
     with open(jsonName, 'w', encoding = 'utf-8') as json_file:
         json.dump(pwData, json_file, indent=4, sort_keys=True)
