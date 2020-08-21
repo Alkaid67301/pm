@@ -1,6 +1,7 @@
 from Crypto.Cipher import Salsa20
+import binascii
 
-plaintext = b'Iamcute'
+plaintext = b'testmessage'
 secret = b'*Thirty-two byte (256 bits) key*'
 
 cipher = Salsa20.new(key=secret)
@@ -10,9 +11,10 @@ print(plaintext)
 print(msg)
 print('\n')
 
-msg = str(msg)
+msg = msg.hex()
 print(msg)
-msg = bytearray(msg.strip('\'').strip('b'), encoding = 'utf-8')
+print(len(msg))
+msg = binascii.unhexlify(msg)
 print(msg)
 print('\n')
 
@@ -22,4 +24,5 @@ print(msg_nonce)
 print(ciphertext)
 cipher = Salsa20.new(key=secret, nonce=msg_nonce)
 plaintext = cipher.decrypt(ciphertext)
-print(plaintext.decode())
+print('testmessage'.encode('utf-8'))
+print(plaintext.decode('utf-8'))
