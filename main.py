@@ -111,6 +111,8 @@ class TryTab(QWidget):
 
         self.setLayout(grid)
 
+        sumbitButton.clicked.connect(self.inputMPW)
+
     def loadComboBox(self):
         with open(jsonName, 'r', encoding = 'utf-8') as json_file:
             data = json.load(json_file)
@@ -119,8 +121,38 @@ class TryTab(QWidget):
         for i in siteNameList:
             siteNameCB.addItem(i)
 
-    def inputMPQ(self):
+    def inputMPW(self):
         mPW, ok = QInputDialog.getText(self, 'Input MasterPassword', 'Enter Password:')
+
+        with open(jsonName, 'r', encoding = 'utf-8') as json_file:
+            data = json.load(json_file)
+
+        a = ft.checkMPW(data, mPW)
+        if a:
+            self.tryWindow(mPW)
+        else:
+            QMessageBox.question(self, '실패', '비밀번호가 일치하지 않습니다.', QMessageBox.Yes)
+
+    def tryWindow(self, mPW):
+        key = ft.encKey(mPW)
+
+        k = True
+        while k:
+            trypw, ok =  QInputDialog.getText(self, '입력', 'Password: ')
+            if ok == QMessageBox.No:
+                QMessageBox.question(self, '실패', '해당 작업을 중지합니다.', QMessageBox.Yes)
+                k = False
+            else:
+                siteName = siteNameCB.activated[str]
+                TorF = ft.check_password(data, trypw, siteName, key)
+                if TorF:
+                    id = data["test"][siteName]["id"]
+                    QMessageBox.question(self, '성공', 'id: ' + id + '\npw: ' + trypw, QMessageBox.Yes)
+                    k = False
+                else:
+                    QMessageBox.question(self, '실패', '비밀번호가 일치하지 않습니다.', QMessageBox.Yes)
+                    self.tryWindow(mPW)
+
 
 class ViewTab(QWidget):
     def __init__(self):
@@ -155,7 +187,18 @@ class HelpTab(QWidget):
         self.initUI()
 
     def initUI(self):
+        h1 = QLabel('Password Manager for Windows\n')
+        h2 = QLabel('아이디와 비밀번호를 사이트 제목 등으로 분류하여 저장합니다.\n\n입력 시도 탭: 비밀번호를 잊어버렸을 때, 맞는 번호인지 입력해서 시험해봅니다.\n공인인증서 비밀번호 등 입력 횟수 제한이 있고, 공개될 때의 리스크가 큰 것들에 적합합니다.')
+        h3 = QLabel('비밀번호 확인 탭: 비밀번호를 잊어버렸을 때, 직접 확인해봅니다.\n포탈 사이트 비밀번호 등에 적합합니다.\n')
+        h4 = QLabel('입력 탭: 사이트 이름, id, pw를 입력할 수 있습니다.\n입력 시 비밀번호 확인 탭의 활성화 여부를 결정합니다.\n입력 시도 탭은 언제나 활성화됩니다.\n이미 존재하는 사이트 이름은 다시 사용할 수 없습니다.\n')
+        h5 = QLabel('설정 탭: ')
+
         grid = QGridLayout()
+        grid.addWidget(h1, 0, 0)
+        grid.addWidget(h2, 1, 0)
+        grid.addWidget(h3, 2, 0)
+        grid.addWidget(h4, 3, 0)
+        grid.addWidget(h5, 4, 0)
         self.setLayout(grid)
 
 if __name__ == '__main__':

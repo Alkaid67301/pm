@@ -11,13 +11,6 @@ jsonPath = nowPath
 jsonName = 'PasswordManager.json'
 print(jsonPath)
 os.chdir(jsonPath)
-'''
-
-with open(jsonName, 'r', encoding = 'utf-8') as json_file:
-    data = json.load(json_file)
-
-masterPW = data["master"]
-'''
 
 def existMPW(jsonName):
     with open(jsonName, 'r', encoding = 'utf-8') as json_file:
@@ -34,17 +27,7 @@ def existMPW(jsonName):
 
     return a
 
-        #while a == True:
-'''
-            pw = input('설정할 비밀번호를 입력해주세요: ')
-            pwRe = input('다시 한 번 입력해주세요: ')
-            if pw == pwRe:
-                a = False
-            else:
-                print('비밀번호가 일치하지 않습니다.')
-'''
-
-print(existMPW(jsonName))
+#print(existMPW(jsonName))
 
 def SaveMPW(jsonName, mpw):
 #pw = 'masterpw'
@@ -76,9 +59,6 @@ def makeJSON(jsonPath, jsonName):
         #print('makedir')
         pwData = {
         "master" : "",
-        "mode" : "num",
-        "min" : "60000",
-        "num" : "1",
         "viewtime" : "30000",
         "test" : {},
         "view" : {},
@@ -96,6 +76,13 @@ def checkMPW(readData, inPW):
     return False
 
 #print(checkMPW(data, 'master'))
+
+def encKey(inPW):
+    pwHash = SHA256.new()
+    pwHash.update(bytearray(inPW, encoding = 'utf-8'))
+    pwHash.update(pwHash.digest())
+
+    return pwHash.digest()
 
 #readMode = 't', 'b'
 #'t' == testMode only 'b' = both testMode and viewMode
@@ -118,8 +105,6 @@ def input_password(readData, inputMPW, readMode, siteName, siteID, sitePW):
 
 #input_password(data, 'masterpw', 'b', "ThisisTest", "ThisisID", "ThisisPW")
 
-
-
 def read_password(readData, inputMPW, siteName):
     mpwHash = SHA256.new()
     mpwHash.update(bytearray(inputMPW, encoding = 'utf-8'))
@@ -134,3 +119,15 @@ def read_password(readData, inputMPW, siteName):
     print(plainpw)
 
 #read_password(data, 'masterpw', 'ThisisTest')
+
+def check_password(readData, inputPW, siteName, inputKey):
+    validpw = binascii.unhexlify(readData["test"][siteName]["pw"])
+    pwEnc = validpw[8:]
+
+    pwBin = bytearray(inputPW, encoding = 'utf-8')
+    sal = Salsa20.new(key = inputKey)
+    EncPwBin = sal.encrypt(pwBin)
+    if pwEnc == EncPwBin:
+        return True
+    else:
+        return False
